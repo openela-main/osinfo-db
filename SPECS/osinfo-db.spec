@@ -1,17 +1,13 @@
 # -*- rpm-spec -*-
 
-%define PatchedSource ../%{name}-%{version}-patched.tar.xz
-%define ExtractedSource %{name}-%{version}
-
 Summary: osinfo database files
 Name: osinfo-db
-Version: 20221130
+Version: 20230518
 Release: 1%{?dist}
 License: LGPLv2+
 Source0: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz
 Source1: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz.asc
 URL: http://libosinfo.org/
-Patch0001: 0001-Add-prereleases-rhel-8.8-and-rhel-9.2.patch
 BuildRequires: intltool
 BuildRequires: git-core
 BuildRequires: osinfo-db-tools
@@ -26,12 +22,8 @@ provisioning of new virtual machines
 %prep
 %autosetup -S git_am
 
-%build
-rm -rf ../%{ExtractedSource}/.git
-tar -cvJf %{PatchedSource} ../%{ExtractedSource}/
-
 %install
-osinfo-db-import  --root %{buildroot} --dir %{_datadir}/osinfo %{PatchedSource}
+osinfo-db-import  --root %{buildroot} --dir %{_datadir}/osinfo %{SOURCE0}
 %if 0%{?rhel}
 # Remove the upstream virtio-win / spice-guest-tools drivers
 find %{buildroot}/%{_datadir}/osinfo/os/microsoft.com/ -name "win-*.d" -type d -exec rm -rf {} +
@@ -49,6 +41,10 @@ find %{buildroot}/%{_datadir}/osinfo/os/microsoft.com/ -name "win-*.d" -type d -
 %{_datadir}/osinfo/schema
 
 %changelog
+* Tue May 23 2023 Victor Toso <victortoso@redhat.com> - 20230518-1
+- Update to new release (v20230518)
+  Resolves: rhbz#2184784
+
 * Wed Nov 30 2022 Victor Toso <victortoso@redhat.com> - 20221130-1
 - Update for new release (v20221130)
   Resolves: rhbz#2135751
