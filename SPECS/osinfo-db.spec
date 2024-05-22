@@ -2,7 +2,7 @@
 
 Summary: osinfo database files
 Name: osinfo-db
-Version: 20230518
+Version: 20231215
 Release: 1%{?dist}
 License: LGPLv2+
 Source0: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz
@@ -41,6 +41,10 @@ find %{buildroot}/%{_datadir}/osinfo/os/microsoft.com/ -name "win-*.d" -type d -
 %{_datadir}/osinfo/schema
 
 %changelog
+* Tue Jan 02 2024 Victor Toso <victortoso@redhat.com> - 20231215-1
+- Update to new release (v20231215)
+  Resolves: rhbz#RHEL-19757
+
 * Tue May 23 2023 Victor Toso <victortoso@redhat.com> - 20230518-1
 - Update to new release (v20230518)
   Resolves: rhbz#2184782
