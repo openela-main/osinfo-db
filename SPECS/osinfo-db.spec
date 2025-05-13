@@ -1,15 +1,19 @@
 # -*- rpm-spec -*-
 
+%define with_mingw 0
+%if 0%{?fedora}
+    %define with_mingw 0%{!?_without_mingw:1}
+%endif
+
 Summary: osinfo database files
 Name: osinfo-db
-Version: 20240701
-Release: 2%{?dist}
+Version: 20250124
+Release: 1%{?dist}
 License: LGPLv2+
 Source0: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz
 Source1: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz.asc
 URL: http://libosinfo.org/
 BuildRequires: intltool
-BuildRequires: git-core
 BuildRequires: osinfo-db-tools
 BuildArch: noarch
 Requires: hwdata
@@ -19,14 +23,16 @@ The osinfo database provides information about operating systems and
 hypervisor platforms to facilitate the automated configuration and
 provisioning of new virtual machines
 
-%prep
-%autosetup -S git_am
-
 %install
-osinfo-db-import  --root %{buildroot} --dir %{_datadir}/osinfo %{SOURCE0}
+osinfo-db-import --root %{buildroot} --dir %{_datadir}/osinfo %{SOURCE0}
 %if 0%{?rhel}
 # Remove the upstream virtio-win / spice-guest-tools drivers
 find %{buildroot}/%{_datadir}/osinfo/os/microsoft.com/ -name "win-*.d" -type d -exec rm -rf {} +
+%endif
+
+%if %{with_mingw}
+osinfo-db-import --root %{buildroot} --dir %{mingw32_datadir}/osinfo %{SOURCE0}
+osinfo-db-import --root %{buildroot} --dir %{mingw64_datadir}/osinfo %{SOURCE0}
 %endif
 
 %files
@@ -41,6 +47,14 @@ find %{buildroot}/%{_datadir}/osinfo/os/microsoft.com/ -name "win-*.d" -type d -
 %{_datadir}/osinfo/schema
 
 %changelog
+* Mon Jan 27 2025 Victor Toso <victortoso@redhat.com> - 20250124-1
+- Update to new release (v20250124)
+  Resolves: rhbz#RHEL-76320
+
+* Thu Sep 05 2024 Victor Toso <victortoso@redhat.com> - 20240701-3
+- Add rhel 10.0 and rhel-10-unknown metadata
+  Related: rhbz#RHEL-56790
+
 * Fri Aug 02 2024 Victor Toso <victortoso@redhat.com> - 20240701-2
 - Fix changelog
   Related: rhbz#RHEL-52519
