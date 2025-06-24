@@ -1,0 +1,78 @@
+From 4cbcfd01671d9c815338efd22525d6d9ec8f386f Mon Sep 17 00:00:00 2001
+From: rpm-build <rpm-build>
+Date: Tue, 10 Jun 2025 15:37:53 +0200
+Subject: [PATCH 3/3] add: Windows Server 2025
+
+074e10f2 wink25: add Windows Server 2025
+
+Resolves: RHEL-82513
+Signed-off-by: rpm-build <rpm-build>
+---
+ os/microsoft.com/win-2k25.xml | 55 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 55 insertions(+)
+ create mode 100644 os/microsoft.com/win-2k25.xml
+
+diff --git a/os/microsoft.com/win-2k25.xml b/os/microsoft.com/win-2k25.xml
+new file mode 100644
+index 0000000..0fd9526
+--- /dev/null
++++ b/os/microsoft.com/win-2k25.xml
+@@ -0,0 +1,55 @@
++<?xml version="1.0"?>
++<libosinfo version="0.0.1">
++  <!-- Licensed under the GNU General Public License version 2 or later.
++     See http://www.gnu.org/licenses/ for a copy of the license text -->
++  <os id="http://microsoft.com/win/2k25">
++    <short-id>win2k25</short-id>
++    <name>Microsoft Windows Server 2025</name>
++    <version>10.0</version>
++    <vendor>Microsoft Corporation</vendor>
++    <vendor xml:lang="zh-Hans">Microsoft Corporation</vendor>
++    <vendor xml:lang="ka">Microsoft Corporation</vendor>
++    <vendor xml:lang="ko">Microsoft Corporation</vendor>
++    <vendor xml:lang="uk">&#x41A;&#x43E;&#x440;&#x43F;&#x43E;&#x440;&#x430;&#x446;&#x456;&#x44F; Microsoft</vendor>
++    <vendor xml:lang="tr">Microsoft Corporation</vendor>
++    <vendor xml:lang="pt-BR">Microsoft Corporation</vendor>
++    <vendor xml:lang="pl">Microsoft Corporation</vendor>
++    <vendor xml:lang="ja">Microsoft Corporation</vendor>
++    <vendor xml:lang="it">Microsoft Corporation</vendor>
++    <vendor xml:lang="id">Microsoft Corporation</vendor>
++    <vendor xml:lang="fr">Microsoft Corporation</vendor>
++    <vendor xml:lang="es">Microsoft Corporation</vendor>
++    <vendor xml:lang="de">Microsoft Corporation</vendor>
++    <vendor xml:lang="ca">Microsoft Corporation</vendor>
++    <family>winnt</family>
++    <distro>win</distro>
++    <derives-from id="http://microsoft.com/win/2k22"/>
++    <upgrades id="http://microsoft.com/win/2k22"/>
++    <release-date>2024-11-01</release-date>
++    <eol-date>2034-10-10</eol-date>
++    <media arch="x86_64">
++      <iso>
++        <volume-id>^(SSS_X64CHK|SSS_X64FREE?|SSS_X64FREV)_</volume-id>
++        <publisher-id>MICROSOFT CORPORATION</publisher-id>
++        <l10n-language regex="true" l10n-language-map="http://microsoft.com/win/7/l10n-language">[A-Z0-9]*_([A-Z]*)</l10n-language>
++      </iso>
++    </media>
++    <resources arch="x86_64">
++      <minimum>
++        <cpu>1400000000</cpu>
++        <n-cpus>1</n-cpus>
++        <ram>536870912</ram>
++        <storage>34359738368</storage>
++      </minimum>
++      <recommended>
++        <cpu>2000000000</cpu>
++        <ram>4294967296</ram>
++        <storage>42949672960</storage>
++      </recommended>
++      <maximum>
++        <!-- 256 TB -->
++        <ram>281474976710656</ram>
++      </maximum>
++    </resources>
++  </os>
++</libosinfo>
+-- 
+2.49.0
+

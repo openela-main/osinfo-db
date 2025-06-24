@@ -1,5 +1,8 @@
 # -*- rpm-spec -*-
 
+%define PatchedSource ../%{name}-%{version}-patched.tar.xz
+%define ExtractedSource %{name}-%{version}
+
 %define with_mingw 0
 %if 0%{?fedora}
     %define with_mingw 0%{!?_without_mingw:1}
@@ -8,12 +11,16 @@
 Summary: osinfo database files
 Name: osinfo-db
 Version: 20250124
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: LGPLv2+
 Source0: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz
 Source1: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz.asc
 URL: http://libosinfo.org/
+Patch0001: 0001-add-rhel-9.6-rhel-9.7-prerelease.patch
+Patch0002: 0002-add-rhel-10.0-rhel-10.1-prerelease.patch
+Patch0003: 0003-add-Windows-Server-2025.patch
 BuildRequires: intltool
+BuildRequires: git-core
 BuildRequires: osinfo-db-tools
 BuildArch: noarch
 Requires: hwdata
@@ -23,16 +30,23 @@ The osinfo database provides information about operating systems and
 hypervisor platforms to facilitate the automated configuration and
 provisioning of new virtual machines
 
+%prep
+%autosetup -S git_am
+
+%build
+rm -rf ../%{ExtractedSource}/.git
+tar -cvJf %{PatchedSource} ../%{ExtractedSource}/
+
 %install
-osinfo-db-import --root %{buildroot} --dir %{_datadir}/osinfo %{SOURCE0}
+osinfo-db-import --root %{buildroot} --dir %{_datadir}/osinfo %{PatchedSource}
 %if 0%{?rhel}
 # Remove the upstream virtio-win / spice-guest-tools drivers
 find %{buildroot}/%{_datadir}/osinfo/os/microsoft.com/ -name "win-*.d" -type d -exec rm -rf {} +
 %endif
 
 %if %{with_mingw}
-osinfo-db-import --root %{buildroot} --dir %{mingw32_datadir}/osinfo %{SOURCE0}
-osinfo-db-import --root %{buildroot} --dir %{mingw64_datadir}/osinfo %{SOURCE0}
+osinfo-db-import --root %{buildroot} --dir %{mingw32_datadir}/osinfo %{PatchedSource}
+osinfo-db-import --root %{buildroot} --dir %{mingw64_datadir}/osinfo %{PatchedSource}
 %endif
 
 %files
@@ -47,6 +61,12 @@ osinfo-db-import --root %{buildroot} --dir %{mingw64_datadir}/osinfo %{SOURCE0}
 %{_datadir}/osinfo/schema
 
 %changelog
+* Tue Jun 10 2025 Victor Toso <victortoso@redhat.com> - 20250124-2
+- Fix missing rhel 9.6 and related
+  Resolves: RHEL-87787
+- Fix missing windows server 2025
+  Resolves: RHEL-82513
+
 * Mon Jan 27 2025 Victor Toso <victortoso@redhat.com> - 20250124-1
 - Update to new release (v20250124)
   Resolves: rhbz#RHEL-76320
