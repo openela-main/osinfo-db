@@ -1,0 +1,55 @@
+From 8be0d55bda7ee7ec8fea38cae5e0e65eaf134b29 Mon Sep 17 00:00:00 2001
+From: Victor Toso <victortoso@redhat.com>
+Date: Sun, 31 Aug 2025 08:42:11 +0200
+Subject: [PATCH] rhel10: fix x86_64 pxeboot, set release date
+
+upstream:
+ - 9c808d5b rhel10: set x86_64 pxeboot path
+ - 2a374acd rhel10: set release date, add test data
+
+Resolves: RHEL-109774
+Signed-off-by: Victor Toso <victortoso@redhat.com>
+---
+ os/redhat.com/rhel-10-unknown.xml | 4 ++--
+ os/redhat.com/rhel-10.0.xml       | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/os/redhat.com/rhel-10-unknown.xml b/os/redhat.com/rhel-10-unknown.xml
+index ee3519e..df22aca 100644
+--- a/os/redhat.com/rhel-10-unknown.xml
++++ b/os/redhat.com/rhel-10-unknown.xml
+@@ -39,8 +39,8 @@
+       <iso>
+         <volume-id>RHEL-10-([1-9]|[1-9][0-9])(-[0-9]|[1-9][0-9])?.*x86_64</volume-id>
+       </iso>
+-      <kernel>isolinux/vmlinuz</kernel>
+-      <initrd>isolinux/initrd.img</initrd>
++      <kernel>images/pxeboot/vmlinuz</kernel>
++      <initrd>images/pxeboot/initrd.img</initrd>
+     </media>
+     <media arch="aarch64">
+       <iso>
+diff --git a/os/redhat.com/rhel-10.0.xml b/os/redhat.com/rhel-10.0.xml
+index 9f11c48..d44e415 100644
+--- a/os/redhat.com/rhel-10.0.xml
++++ b/os/redhat.com/rhel-10.0.xml
+@@ -35,13 +35,13 @@
+     <codename>Coughlan</codename>
+     <upgrades id="http://redhat.com/rhel/9.5"/>
+     <derives-from id="http://redhat.com/rhel/9.5"/>
+-    <release-status>prerelease</release-status>
++    <release-date>2025-05-20</release-date>
+     <media arch="x86_64">
+       <iso>
+         <volume-id>RHEL-10-0(-[0-9]|[1-9][0-9])?.*x86_64</volume-id>
+       </iso>
+-      <kernel>isolinux/vmlinuz</kernel>
+-      <initrd>isolinux/initrd.img</initrd>
++      <kernel>images/pxeboot/vmlinuz</kernel>
++      <initrd>images/pxeboot/initrd.img</initrd>
+     </media>
+     <media arch="aarch64">
+       <iso>
+-- 
+2.51.0
+
