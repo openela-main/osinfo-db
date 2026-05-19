@@ -1,5 +1,7 @@
 # -*- rpm-spec -*-
 
+%global PatchedSource %{_builddir}/%{name}-%{version}-patched.tar.xz
+
 %define with_mingw 0
 %if 0%{?fedora}
     %define with_mingw 0%{!?_without_mingw:1}
@@ -8,31 +10,42 @@
 Summary: osinfo database files
 Name: osinfo-db
 Version: 20250606
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: LGPLv2+
 Source0: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz
 Source1: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz.asc
 URL: http://libosinfo.org/
 BuildRequires: intltool
 BuildRequires: osinfo-db-tools
+BuildRequires: git
 BuildArch: noarch
 Requires: hwdata
+
+Patch0001: 0001-rhel-Add-RHEL-9.8-prerelease.patch
+Patch0002: 0002-rhel-Add-RHEL-10.2-prerelease.patch
 
 %description
 The osinfo database provides information about operating systems and
 hypervisor platforms to facilitate the automated configuration and
 provisioning of new virtual machines
 
+%prep
+%autosetup -S git_am
+
+%build
+rm -rf .git
+tar -cJf %{PatchedSource} .
+
 %install
-osinfo-db-import --root %{buildroot} --dir %{_datadir}/osinfo %{SOURCE0}
+osinfo-db-import --root %{buildroot} --dir %{_datadir}/osinfo %{PatchedSource}
 %if 0%{?rhel}
 # Remove the upstream virtio-win / spice-guest-tools drivers
 find %{buildroot}/%{_datadir}/osinfo/os/microsoft.com/ -name "win-*.d" -type d -exec rm -rf {} +
 %endif
 
 %if %{with_mingw}
-osinfo-db-import --root %{buildroot} --dir %{mingw32_datadir}/osinfo %{SOURCE0}
-osinfo-db-import --root %{buildroot} --dir %{mingw64_datadir}/osinfo %{SOURCE0}
+osinfo-db-import --root %{buildroot} --dir %{mingw32_datadir}/osinfo %{PatchedSource}
+osinfo-db-import --root %{buildroot} --dir %{mingw64_datadir}/osinfo %{PatchedSource}
 %endif
 
 %files
@@ -47,6 +60,10 @@ osinfo-db-import --root %{buildroot} --dir %{mingw64_datadir}/osinfo %{SOURCE0}
 %{_datadir}/osinfo/schema
 
 %changelog
+* Mon Mar 09 2026 Pavel Hrdina <phrdina@redhat.com> - 20250606-2
+- Add rhel-10.2 and rhel-9.8 prerelease
+  Resolves: rhbz#RHEL-144809
+
 * Fri Jun 06 2025 Victor Toso <victortoso@redhat.com> - 20250606-1
 - Update to new release (v20250606)
   Resolves: rhbz#RHEL-95251
