@@ -1,6 +1,6 @@
 # -*- rpm-spec -*-
 
-%global PatchedSource %{_builddir}/%{name}-%{version}-patched.tar.xz
+%global source_date_epoch $(date --utc --date %{version} +%s)
 
 %define with_mingw 0
 %if 0%{?fedora}
@@ -9,49 +9,74 @@
 
 Summary: osinfo database files
 Name: osinfo-db
-Version: 20250606
-Release: 2%{?dist}
-License: LGPLv2+
-Source0: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz
-Source1: https://fedorahosted.org/releases/l/i/libosinfo/%{name}-%{version}.tar.xz.asc
-URL: http://libosinfo.org/
-BuildRequires: intltool
-BuildRequires: osinfo-db-tools
+Version: 20260812
+Release: 1%{?dist}%{?extra_release}
+License: GPL-2.0-or-later
+Source: https://gitlab.com/libosinfo/osinfo-db/-/releases/v%{version}/downloads/%{name}-dist-%{version}.tar.xz
+URL: https://libosinfo.org/
 BuildRequires: git
+BuildRequires: gettext
+BuildRequires: osinfo-db-tools
+BuildRequires: make
+BuildRequires: python3-pytest
+BuildRequires: python3-lxml
 BuildArch: noarch
 Requires: hwdata
 
-Patch0001: 0001-rhel-Add-RHEL-9.8-prerelease.patch
-Patch0002: 0002-rhel-Add-RHEL-10.2-prerelease.patch
+%if %{with_mingw}
+BuildRequires: mingw32-filesystem >= 95
+BuildRequires: mingw64-filesystem >= 95
+%endif
 
 %description
 The osinfo database provides information about operating systems and
 hypervisor platforms to facilitate the automated configuration and
 provisioning of new virtual machines
 
+%if %{with_mingw}
+%package -n mingw32-osinfo-db
+Summary: %{summary}
+
+%description -n mingw32-osinfo-db
+This package provides the osinfo database of information about
+operating systems for use with virtualization provisioning tools
+
+%package -n mingw64-osinfo-db
+Summary: %{summary}
+
+%description -n mingw64-osinfo-db
+This package provides the osinfo database of information about
+operating systems for use with virtualization provisioning tools
+
+%endif
+
 %prep
-%autosetup -S git_am
+%autosetup -S git_am -N
 
 %build
-rm -rf .git
-tar -cJf %{PatchedSource} .
+export SOURCE_DATE_EPOCH=%{source_date_epoch}
+%make_build
 
 %install
-osinfo-db-import --root %{buildroot} --dir %{_datadir}/osinfo %{PatchedSource}
+export SOURCE_DATE_EPOCH=%{source_date_epoch}
+%make_install OSINFO_DB_TARGET="--dir %{_datadir}/osinfo"
 %if 0%{?rhel}
 # Remove the upstream virtio-win / spice-guest-tools drivers
 find %{buildroot}/%{_datadir}/osinfo/os/microsoft.com/ -name "win-*.d" -type d -exec rm -rf {} +
 %endif
 
 %if %{with_mingw}
-osinfo-db-import --root %{buildroot} --dir %{mingw32_datadir}/osinfo %{PatchedSource}
-osinfo-db-import --root %{buildroot} --dir %{mingw64_datadir}/osinfo %{PatchedSource}
+%make_install OSINFO_DB_TARGET="--dir %{mingw32_datadir}/osinfo"
+%make_install OSINFO_DB_TARGET="--dir %{mingw64_datadir}/osinfo"
 %endif
+
+%check
+make check
 
 %files
 %dir %{_datadir}/osinfo/
+%doc %{_datadir}/osinfo/LICENSE
 %{_datadir}/osinfo/VERSION
-%{_datadir}/osinfo/LICENSE
 %{_datadir}/osinfo/datamap
 %{_datadir}/osinfo/device
 %{_datadir}/osinfo/os
@@ -59,7 +84,36 @@ osinfo-db-import --root %{buildroot} --dir %{mingw64_datadir}/osinfo %{PatchedSo
 %{_datadir}/osinfo/install-script
 %{_datadir}/osinfo/schema
 
+%if %{with_mingw}
+%files -n mingw32-osinfo-db
+%dir %{mingw32_datadir}/osinfo
+%doc %{mingw32_datadir}/osinfo/LICENSE
+%{mingw32_datadir}/osinfo/VERSION
+%{mingw32_datadir}/osinfo/datamap
+%{mingw32_datadir}/osinfo/device
+%{mingw32_datadir}/osinfo/os
+%{mingw32_datadir}/osinfo/platform
+%{mingw32_datadir}/osinfo/install-script
+%{mingw32_datadir}/osinfo/schema
+
+%files -n mingw64-osinfo-db
+%dir %{mingw64_datadir}/osinfo
+%doc %{mingw64_datadir}/osinfo/LICENSE
+%{mingw64_datadir}/osinfo/VERSION
+%{mingw64_datadir}/osinfo/datamap
+%{mingw64_datadir}/osinfo/device
+%{mingw64_datadir}/osinfo/os
+%{mingw64_datadir}/osinfo/platform
+%{mingw64_datadir}/osinfo/install-script
+%{mingw64_datadir}/osinfo/schema
+%endif
+
 %changelog
+* Fri Aug 14 2026 Pavel Hrdina <phrdina@redhat.com> - 20260812-1
+- Rebased to osinfo-db-20260812 (RHEL-238413)
+- The rebase also fixes the following bugs:
+    RHEL-215496
+
 * Mon Mar 09 2026 Pavel Hrdina <phrdina@redhat.com> - 20250606-2
 - Add rhel-10.2 and rhel-9.8 prerelease
   Resolves: rhbz#RHEL-144809
